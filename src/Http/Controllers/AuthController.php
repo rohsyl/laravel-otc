@@ -19,8 +19,8 @@ class AuthController extends Controller
     public function __invoke() {
 
         request()->validate([
-            'related_type'  => 'required|string',
-            'related_id'    => 'required|numeric',
+            'type'  => 'required|string',
+            'identifier'    => 'required|string',
             'code'          => 'required|numeric',
         ]);
 

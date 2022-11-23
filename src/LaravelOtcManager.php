@@ -42,13 +42,27 @@ class LaravelOtcManager
 
     public function unauthorizedResponse(Model $related) : Response
     {
-        return response()->json([
-            'request_code_url' => route('laravel-otc.request-code'),
-            'request_code_body' => [
-                'related_type' => get_class($related),
-                'related_id' => $related->id,
-            ]
-        ], 401);
+        $slug = $this->getModelSlug($related);
+
+        if(!isset($slug)) {
+            // todo throw an exceition ?
+            // throw new  NoMatchingAuthenticatableException
+            return abort(401);
+        }
+
+        $identifierColumn = config('otc.authenticatables.' . $slug . '.identifier');
+
+        if (request()->wantsJson()) {
+            return response()->json([
+                'request_code_url' => route('laravel-otc.request-code'),
+                'request_code_body' => [
+                    'type' => $slug,
+                    'identifier' => $related->$identifierColumn,
+                ]
+            ], 401);
+        }
+
+        return abort(401);
     }
 
     public function storeCode(Model $related, $code) : OtcToken
@@ -64,10 +78,13 @@ class LaravelOtcManager
 
     public function getModel() : Model
     {
-        $modelClass = request()->related_type;
-        $modelId = request()->related_id;
+        $slug = request()->type;
+        $identifier = request()->identifier;
 
-        return call_user_func_array([$modelClass, 'find'], [$modelId]);
+        $modelClass = config('otc.authenticatables.' . $slug . '.model');
+        $identifierColumn = config('otc.authenticatables.' . $slug . '.identifier');
+
+        return call_user_func_array([$modelClass, 'query'], [])->where($identifierColumn, $identifier)->first();
     }
 
     public function checkCode(OtcToken $token = null)
@@ -139,5 +156,15 @@ class LaravelOtcManager
             ->where('id', request()->ip())
             ->latest()
             ->first();
+    }
+
+    private function getModelSlug(Model $related) {
+        $authenticatables = config('otc.authenticatables');
+        foreach($authenticatables as $slug => $a) {
+            if($a['model'] === get_class($related)) {
+                return $slug;
+            }
+        }
+        return null;
     }
 }

@@ -24,8 +24,8 @@ class RequestCodeController extends Controller
     public function __invoke() {
 
         request()->validate([
-            'related_type'  => 'required|string',
-            'related_id'    => 'required|numeric',
+            'type'  => 'required|string',
+            'identifier'    => 'required|string',
             'redirect_url'      => 'nullable|string',
         ]);
 
