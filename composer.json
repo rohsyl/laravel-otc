@@ -1,53 +1,74 @@
 {
-    "name": "spatie/:package_name",
-    "description": ":package_description",
+    "name": "rohsyl/laravel-otc",
+    "description": "Laravel One Time Code Authentication",
     "keywords": [
-        "spatie",
-        ":package_name"
+        "rohsyl",
+        "laravel",
+        "laravel-otc"
     ],
-    "homepage": "https://github.com/spatie/:package_name",
+    "homepage": "https://github.com/rohsyl/laravel-otc",
     "license": "MIT",
     "authors": [
         {
-            "name": ":author_name",
-            "email": ":author_email",
-            "homepage": "https://spatie.be",
+            "name": "rohsyl",
+            "email": "syzin12@gmail.com",
             "role": "Developer"
         }
     ],
     "require": {
-        "php": "^7.3"
+        "php": ">=8.0.2",
+        "spatie/laravel-package-tools": "^1.13.0",
+        "illuminate/contracts": "^9.0"
     },
     "require-dev": {
-        "symfony/var-dumper": "^4.3",
-        "phpunit/phpunit": "^8.2"
+        "laravel/pint": "^1.0",
+        "nunomaduro/collision": "^6.0",
+        "nunomaduro/larastan": "^2.0.1",
+        "orchestra/testbench": "^7.0",
+        "pestphp/pest": "^1.21",
+        "pestphp/pest-plugin-laravel": "^1.1",
+        "phpstan/extension-installer": "^1.1",
+        "phpstan/phpstan-deprecation-rules": "^1.0",
+        "phpstan/phpstan-phpunit": "^1.0",
+        "phpunit/phpunit": "^9.5",
+        "spatie/laravel-ray": "^1.26"
     },
     "autoload": {
         "psr-4": {
-            "Spatie\\Skeleton\\": "src"
+            "rohsyl\\LaravelOtc\\": "src",
+            "rohsyl\\LaravelOtc\\Database\\Factories\\": "database/factories"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "Spatie\\Skeleton\\Tests\\": "tests"
+            "rohsyl\\LaravelOtc\\Tests\\": "tests"
         }
     },
     "scripts": {
-        "test": "vendor/bin/phpunit",
-        "test-coverage": "vendor/bin/phpunit --coverage-html coverage"
+        "post-autoload-dump": "@php ./vendor/bin/testbench package:discover --ansi",
+        "analyse": "vendor/bin/phpstan analyse",
+        "test": "vendor/bin/pest",
+        "test-coverage": "vendor/bin/pest --coverage",
+        "format": "vendor/bin/pint"
 
     },
     "config": {
-        "sort-packages": true
+        "sort-packages": true,
+        "allow-plugins": {
+            "pestphp/pest-plugin": true,
+            "phpstan/extension-installer": true
+        }
     },
     "extra": {
         "laravel": {
             "providers": [
-                "Spatie\\Skeleton\\SkeletonServiceProvider"
+                "rohsyl\\LaravelOtc\\LaravelOtcServiceProvider"
             ],
             "aliases": {
-                "Skeleton": "Spatie\\Skeleton\\SkeletonFacade"
+                "Otc": "rohsyl\\LaravelOtc\\Otc"
             }
         }
-    }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
 }
