@@ -2,10 +2,13 @@
 
 namespace rohsyl\LaravelOtc\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use rohsyl\LaravelOtc\Database\Factories\OtcTokenFactory;
 
 class OtcToken extends Model
 {
+    use HasFactory;
 
     public $fillable = [
         'related_id',
@@ -24,5 +27,10 @@ class OtcToken extends Model
 
     public function related() {
         return $this->morphTo('related');
+    }
+
+    protected static function newFactory()
+    {
+        return OtcTokenFactory::new();
     }
 }

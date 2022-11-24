@@ -13,6 +13,7 @@ use Symfony\Component\HttpFoundation\Response;
 class LaravelOtcManager
 {
     private $generator;
+    private $request;
 
     public function __construct(
         GeneratorContract $generator
@@ -27,8 +28,8 @@ class LaravelOtcManager
      */
     public function check()
     {
-        $token = request()->bearerToken() ?? (
-            request()->has('token') ? request()->token : null
+        $token = $this->getRequest()->bearerToken() ?? (
+            $this->getRequest()->has('token') ? $this->getRequest()->token : null
         );
 
         if(!isset($token)) return false;
@@ -52,7 +53,7 @@ class LaravelOtcManager
 
         $identifierColumn = config('otc.authenticatables.' . $slug . '.identifier');
 
-        if (request()->wantsJson()) {
+        if ($this->getRequest()->wantsJson()) {
             return response()->json([
                 'request_code_url' => route('laravel-otc.request-code'),
                 'request_code_body' => [
@@ -70,7 +71,7 @@ class LaravelOtcManager
         return OtcToken::create([
             'related_type' => get_class($related),
             'related_id' => $related->id,
-            'ip' => request()->ip(),
+            'ip' => $this->getRequest()->ip(),
             'code' => $code,
             'code_valid_until' => now()->addMinutes(30),
         ]);
@@ -78,8 +79,8 @@ class LaravelOtcManager
 
     public function getModel() : Model
     {
-        $slug = request()->type;
-        $identifier = request()->identifier;
+        $slug = $this->getRequest()->type;
+        $identifier = $this->getRequest()->identifier;
 
         $modelClass = config('otc.authenticatables.' . $slug . '.model');
         $identifierColumn = config('otc.authenticatables.' . $slug . '.identifier');
@@ -89,10 +90,10 @@ class LaravelOtcManager
 
     public function checkCode(OtcToken $token = null)
     {
-        $token = $token ?? $this->findOtcTokenByRelatedAndCode($this->getModel(), request()->code);
+        $token = $token ?? $this->findOtcTokenByRelatedAndCode($this->getModel(), $this->getRequest()->code);
 
         return isset($token)
-            && $token->code == request()->code
+            && $token->code == $this->getRequest()->code
             && $token->code_valid_until->isAfter(now());
     }
 
@@ -117,10 +118,10 @@ class LaravelOtcManager
 
         $notifierClass = config('otc.notifier_class');
         $notificationClass = config('otc.notification_class');
-        if(!class_exists($notifierClass)) {
+        if(!isset($notifierClass) || !class_exists($notifierClass)) {
             $notifierClass = Notification::class;
         }
-        if(!class_exists($notificationClass)) {
+        if(!isset($notificationClass) || !class_exists($notificationClass)) {
             $notificationClass = OneTimeCodeNotification::class;
         }
         call_user_func_array(
@@ -142,21 +143,21 @@ class LaravelOtcManager
         return OtcToken::query()
             ->where('related_id', $related->id)
             ->where('related_type', get_class($related))
-            ->where('ip', request()->ip())
+            ->where('ip', $this->getRequest()->ip())
             ->where('code', $code)
             ->latest()
             ->first();
     }
 
-    private function findOtcTokenByRelated(Model $related) : ?OtcToken
+    /*private function findOtcTokenByRelated(Model $related) : ?OtcToken
     {
         return OtcToken::query()
             ->where('related_id', $related->id)
             ->where('related_type', get_class($related))
-            ->where('id', request()->ip())
+            ->where('id', $this->getRequest()->ip())
             ->latest()
             ->first();
-    }
+    }*/
 
     private function getModelSlug(Model $related) {
         $authenticatables = config('otc.authenticatables');
@@ -166,5 +167,13 @@ class LaravelOtcManager
             }
         }
         return null;
+    }
+
+    private function getRequest() {
+        return $this->request ?? request();
+    }
+
+    public function setTestRequest($request) {
+        $this->request = $request;
     }
 }

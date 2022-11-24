@@ -25,8 +25,7 @@ php artisan otc:install
 ## Configuration
 
 Edit `config/otc.php`
-```
-<?php
+```php
 return [
     'notifier_class' => \Illuminate\Support\Facades\Notification::class,
     'notification_class' => \rohsyl\LaravelOtc\Notifications\OneTimeCodeNotification::class,
@@ -40,6 +39,44 @@ return [
 ];
 ```
 
+### notifier_class
+Define what class will be called to send the notification. By default it use the Notification facade of Laravel.
+```php
+'notifier_class' => \Illuminate\Support\Facades\Notification::class,
+```
+
+### notification_class
+Define what notification will be sent.
+```
+'notification_class' => \rohsyl\LaravelOtc\Notifications\OneTimeCodeNotification::class,
+```
+
+You can replace this class by any other notification, you will recieve a `OtcToken $token` as constructor parameters
+```php
+public function __construct(OtcToken $token) {
+    $this->token = $token;
+}
+```
+
+You can access the code that need to be sent from the `$token` variable
+```php
+$token->code
+```
+
+### authenticatables
+
+This array will define a list of entites that can be used to get authentified.
+
+- `user` is the name of the "guard"/type
+- `model` is the corresponding eloquent model
+- `identifier` is the identifier column that will be used to find the corresponding user
+```php
+'user' => [
+    'model' => \App\Models\User::class,
+    'identifier' => 'email',
+]
+```
+
 ## Usage
 
 ### Check 
@@ -51,15 +88,15 @@ Otc::check()
 
 If the user is not authentified you can return an error
 ```php
-return Otc::unauthorizedResponse($lease);
+return Otc::unauthorizedResponse($user);
 ```
 This response will return 401 http error with the following body.
-```
+```json
 {
-    "request_code_url": "http://localhost:8001/vendor/rohsyl/laravel-otc/auth/request-code",
+    "request_code_url": ".../vendor/rohsyl/laravel-otc/auth/request-code",
     "request_code_body": {
-        "type": "lease",
-        "identifier": "LS-41203"
+        "type": "user",
+        "identifier": "test@test.com"
     }
 }
 ```
@@ -69,6 +106,9 @@ You must use the `request_code_url` as the url to request a code (ye seem obviou
 Send a post request
 ```
 POST /vendor/rohsyl/laravel-otc/auth/request-code
+```
+with body
+```json
 {
     "type": "user",
     "identifier": "test@test.com"
@@ -78,20 +118,23 @@ POST /vendor/rohsyl/laravel-otc/auth/request-code
 
 An email will be sent to the corresponding entity if available. The email will contain the code.
 
-### Request bearer token
+### Request a token
 Send a post request
 ```
 POST /vendor/rohsyl/laravel-otc/auth/code
+```
+with body
+```json
 {
     "type": "user",
-    "identifier": "test@test.com"
+    "identifier": "test@test.com",
     "code": <code>
 }
 ```
 > You need to send the `code` that should have been retrieved from the user through a form or anything else.
 
 You will recieve a token back
-```
+```json
 {
     "token": "9vov6FjW47v6JjH...4iPzPH0PwpwdE"
 }
@@ -115,7 +158,7 @@ Or in the query string
 
 ### Testing
 
-``` bash
+```bash
 composer test
 ```
 
