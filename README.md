@@ -1,9 +1,9 @@
 # Laravel One Time Code Authentication
 
-[![Latest Version on Packagist](https://img.shields.io/packagist/v/spatie/laravel-otc.svg?style=flat-square)](https://packagist.org/packages/rohsyl/laravel-otc)
-[![Build Status](https://img.shields.io/travis/spatie/laravel-otc/master.svg?style=flat-square)](https://travis-ci.org/rohsyl/laravel-otc)
-[![Quality Score](https://img.shields.io/scrutinizer/g/spatie/laravel-otc.svg?style=flat-square)](https://scrutinizer-ci.com/g/rohsyl/laravel-otc)
-[![Total Downloads](https://img.shields.io/packagist/dt/spatie/laravel-otc.svg?style=flat-square)](https://packagist.org/packages/rohsyl/laravel-otc)
+[![Latest Version on Packagist](https://img.shields.io/packagist/v/rohsyl/laravel-otc.svg?style=flat-square)](https://packagist.org/packages/rohsyl/laravel-otc)
+[![CI](https://github.com/rohsyl/laravel-otc/actions/workflows/ci.yml/badge.svg)](https://github.com/rohsyl/laravel-otc/actions/workflows/ci.yml)
+[![Quality Score](https://img.shields.io/scrutinizer/g/rohsyl/laravel-otc.svg?style=flat-square)](https://scrutinizer-ci.com/g/rohsyl/laravel-otc)
+[![Total Downloads](https://img.shields.io/packagist/dt/rohsyl/laravel-otc.svg?style=flat-square)](https://packagist.org/packages/rohsyl/laravel-otc)
 
 
 Laravel One Time Code Authentication allow you to send by mail an one time code to auth your users.
