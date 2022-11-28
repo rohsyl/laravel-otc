@@ -33,6 +33,10 @@ jobs:
         version: 2
         args: -q -n
 
+
+    - name: Directory Permissions
+      run: sudo chmod -R 777 vendor/orchestra/testbench-core/laravel/bootstrap/cache
+
     - name: Execute tests (Unit and Feature tests) via PHPUnit
       run: |
         php -v
