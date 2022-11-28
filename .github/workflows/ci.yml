@@ -17,7 +17,7 @@ jobs:
     - name: Setup PHP
       uses: shivammathur/setup-php@v2
       with:
-        php-version: '8.0'
+        php-version: '8.1'
 
     - name: Cache Composer dependencies
       uses: actions/cache@v2
@@ -28,7 +28,7 @@ jobs:
     - name: Install Dependencies
       uses: php-actions/composer@v6
       with:
-        php_version: 8.0
+        php_version: 8.1
         php_extensions: gd zip
         version: 2
         args: -q -n
