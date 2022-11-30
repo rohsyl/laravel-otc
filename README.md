@@ -65,7 +65,8 @@ $token->code
 
 ### authenticatables
 
-This array will define a list of entites that can be used to get authentified.
+This array will define a list of entites that can be used to get authentified. It's like a simplified version of laravel guard.
+I might move this to guard in the futur. The main goal is to set what model and what column are used to find the model in the database.
 
 - `user` is the name of the "guard"/type
 - `model` is the corresponding eloquent model
@@ -81,14 +82,17 @@ This array will define a list of entites that can be used to get authentified.
 
 ### Check 
 
-Check if the user is authentified
+Check if the user is authenticated
 ``` php
 Otc::check()
 ```
+> This method will return `true` or `false`.
 
 If the user is not authentified you can return an error
 ```php
-return Otc::unauthorizedResponse($user);
+if(!Otc::check()) {
+    return Otc::unauthorizedResponse($user);
+}
 ```
 This response will return 401 http error with the following body.
 ```json
@@ -154,6 +158,21 @@ Authorization: Bearer <token>
 Or in the query string
 ```
 ?token=<token>
+```
+
+### Troubleshooting
+
+#### CORS
+
+If you use `fruitcake/laravel-cors` to manage CORS in your app. You will get `CORS error` when doing call to this package endpoints.
+
+You will need to add a new path in your `config/cors.php` in the `paths` array
+
+```
+    'paths' => [
+        // ...
+        'vendor/rohsyl/laravel-otc/*',
+    ],
 ```
 
 ### Testing

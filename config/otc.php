@@ -8,5 +8,9 @@ return [
             'model' => \App\Models\User::class,
             'identifier' => 'email',
         ]
-    ]
+    ],
+/* TODO
+    'rate-limit.per-minute
+
+    name*/
 ];

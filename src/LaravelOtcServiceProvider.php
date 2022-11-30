@@ -2,6 +2,8 @@
 
 namespace rohsyl\LaravelOtc;
 
+use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Support\Facades\RateLimiter;
 use rohsyl\LaravelOtc\Generators\GeneratorContract;
 use rohsyl\LaravelOtc\Generators\NumberGenerator;
 use Spatie\LaravelPackageTools\Package;
@@ -37,6 +39,10 @@ class LaravelOtcServiceProvider extends PackageServiceProvider
 
     public function packageRegistered()
     {
+        RateLimiter::for('laravel-otc', function($request) {
+            return Limit::perMinute(config('otc.rate-limit.per-minute', 6));
+        });
+
         $this->app->bind(GeneratorContract::class, NumberGenerator::class);
         $this->app->singleton(LaravelOtcManager::class, function($app) {
             return new LaravelOtcManager($app->make(GeneratorContract::class));
