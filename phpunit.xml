@@ -12,10 +12,13 @@
   </coverage>
   <testsuites>
     <testsuite name="Otc Test Suite">
-      <directory>tests</directory>
+      <directory suffix="Test.php">tests</directory>
     </testsuite>
   </testsuites>
   <logging>
     <junit outputFile="build/report.junit.xml"/>
   </logging>
+    <php>
+        <env name="CACHE_DRIVER" value="array"/>
+    </php>
 </phpunit>
