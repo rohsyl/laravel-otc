@@ -85,7 +85,17 @@ class LaravelOtcManager
         $modelClass = config('otc.authenticatables.' . $slug . '.model');
         $identifierColumn = config('otc.authenticatables.' . $slug . '.identifier');
 
-        return call_user_func_array([$modelClass, 'query'], [])->where($identifierColumn, $identifier)->first();
+        if(str_contains($identifierColumn, '.')) {
+            [$identifierRelation, $identifierColumn] = explode('.', $identifierColumn);
+
+            return call_user_func_array([$modelClass, 'query'], [])
+                ->whereHas($identifierRelation, fn($q) => $q->where($identifierColumn, $identifier))
+                ->first();
+        }
+        else {
+            return call_user_func_array([$modelClass, 'query'], [])->where($identifierColumn, $identifier)->first();
+        }
+
     }
 
     public function checkCode(OtcToken $token = null)
