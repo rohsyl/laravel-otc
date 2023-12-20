@@ -9,6 +9,8 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * @method static boolean check()
  * @method static Response unauthorizedResponse(Model $related)
+ * @method static Model|null user()
+ * @method static bool auth(string $token)
  *
  * @see LaravelOtcManager
  */

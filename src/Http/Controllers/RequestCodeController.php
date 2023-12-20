@@ -39,6 +39,6 @@ class RequestCodeController extends Controller
         }
         return request()->has('redirect_url')
             ? redirect()->to(request()->redirect_url)
-            : redirect()->back();
+            : response('', 200);
     }
 }

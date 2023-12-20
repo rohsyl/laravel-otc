@@ -28,9 +28,9 @@ class LaravelOtcManager
      */
     public function check()
     {
-        $token = $this->getRequest()->bearerToken() ?? (
-            $this->getRequest()->has('token') ? $this->getRequest()->token : null
-        );
+        $token = $this->getRequest()->bearerToken()
+            ?? ($this->getRequest()->has('token') ? $this->getRequest()->token : null)
+            ?? (session()->has('otc_token') ? session()->get('otc_token') : null);
 
         if(!isset($token)) return false;
 
@@ -39,6 +39,44 @@ class LaravelOtcManager
         return isset($otc)
             && $otc->token === $token
             && $otc->token_valid_until->isAfter(now());
+    }
+
+    /**
+     * Authenticate using token
+     * @param $token
+     * @return bool
+     */
+    public function auth($token): bool {
+        $otc = $this->findOtcTokenByToken($token);
+        if(!isset($otc) || $otc->token_valid_until->isBefore(now())) {
+            return false;
+        }
+        session()->regenerate(true);
+        session()->put('otc_token', $token);
+        return true;
+    }
+
+    public function logout() {
+        session()->forget('otc_token');
+        session()->regenerate(true);
+    }
+
+    /**
+     * Get the authenticated user
+     * @return Model|null
+     * @throws \Psr\Container\ContainerExceptionInterface
+     * @throws \Psr\Container\NotFoundExceptionInterface
+     */
+    public function user(): Model|null {
+        $token = session()->get('otc_token');
+        if(!isset($token)) {
+            return null;
+        }
+        $otc = $this->findOtcTokenByToken($token);
+        if(!isset($otc) || $otc->token_valid_until->isBefore(now())) {
+            return null;
+        }
+        return $otc->related;
     }
 
     public function unauthorizedResponse(Model $related) : Response
@@ -77,7 +115,7 @@ class LaravelOtcManager
         ]);
     }
 
-    public function getModel() : Model
+    public function getModel() : ?Model
     {
         $slug = $this->getRequest()->type;
         $identifier = $this->getRequest()->identifier;
@@ -124,6 +162,16 @@ class LaravelOtcManager
     public function sendCode(?Model $related = null, ?OtcToken $token = null)
     {
         $related = $related ?? $this->getModel();
+
+        // if we cant find the related model
+        if(!isset($related)) {
+            // and the register is not allowed, we abort
+            if(!$this->isRegisterable()) {
+                abort(403);
+            }
+        }
+
+
         $token = $token ?? $this->createCode($related);
 
         $notifierClass = config('otc.notifier_class');
@@ -177,6 +225,17 @@ class LaravelOtcManager
             }
         }
         return null;
+    }
+
+    private function isRegisterable() {
+        $slug = $this->getRequest()->type;
+        return config('otc.authenticatables.' . $slug . '.register');
+    }
+
+    private function register() {
+        $slug = $this->getRequest()->type;
+
+
     }
 
     private function getRequest() {

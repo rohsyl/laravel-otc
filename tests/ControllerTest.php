@@ -70,8 +70,25 @@ class ControllerTest extends LaravelOtcTestCase
             ]
         );
 
-        $response->assertStatus(302);
+        $response->assertStatus(200);
         Notification::assertSentTo($this->user, OneTimeCodeNotification::class);
+    }
+
+    /** @test */
+    public function it_throw_error_when_entity_not_found_and_not_registerable()
+    {
+
+        Notification::fake();
+
+        $response = $this->post(
+            uri: route('laravel-otc.request-code'),
+            data: [
+                'type' => 'user',
+                'identifier' => 'wrong_email@mail.com',
+            ]
+        );
+
+        $response->assertStatus(403);
     }
 
     /** @test */

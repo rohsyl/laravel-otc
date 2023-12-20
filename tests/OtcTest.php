@@ -300,6 +300,88 @@ class OtcTest extends LaravelOtcTestCase
     }
 
     /** @test */
+    public function it_auth_using_token() {
+
+        Carbon::setTestNow(Carbon::create(2022, 10, 10, 11, 0, 0));
+
+        OtcToken::factory()->create([
+            'related_type' => User::class,
+            'related_id' => $this->user->id,
+            'code' => 12345,
+            'code_valid_until' => Carbon::create(2022, 10, 10, 10, 15, 0),
+            'token' => '123456789asdfghjkqwertzuiy<xcvbnm',
+            'token_valid_until' => Carbon::create(2022, 11, 20, 10, 00, 0),
+        ]);
+
+        $this->assertTrue($this->manager->auth('123456789asdfghjkqwertzuiy<xcvbnm'));
+    }
+
+    /** @test */
+    public function it_doesnt_auth_using_token_when_unvalid() {
+
+        Carbon::setTestNow(Carbon::create(2023, 10, 10, 11, 0, 0));
+
+        OtcToken::factory()->create([
+            'related_type' => User::class,
+            'related_id' => $this->user->id,
+            'code' => 12345,
+            'code_valid_until' => Carbon::create(2022, 10, 10, 10, 15, 0),
+            'token' => '123456789asdfghjkqwertzuiy<xcvbnm',
+            'token_valid_until' => Carbon::create(2022, 11, 20, 10, 00, 0),
+        ]);
+
+        $this->assertFalse($this->manager->auth('123456789asdfghjkqwertzuiy<xcvbnm'));
+    }
+
+    /** @test */
+    public function it_doesnt_auth_using_token_when_no_token() {
+
+        $this->assertFalse($this->manager->auth('123456789asdfghjkqwertzuiy<xcvbnm'));
+    }
+
+    /** @test */
+    public function it_return_user_when_authenticated() {
+
+        Carbon::setTestNow(Carbon::create(2022, 10, 10, 11, 0, 0));
+
+        OtcToken::factory()->create([
+            'related_type' => User::class,
+            'related_id' => $this->user->id,
+            'code' => 12345,
+            'code_valid_until' => Carbon::create(2022, 10, 10, 10, 15, 0),
+            'token' => '123456789asdfghjkqwertzuiy<xcvbnm',
+            'token_valid_until' => Carbon::create(2022, 11, 20, 10, 00, 0),
+        ]);
+
+        $this->manager->auth('123456789asdfghjkqwertzuiy<xcvbnm');
+
+        $this->assertEquals($this->user->id, $this->manager->user()->id);
+    }
+
+    /** @test */
+    public function it_return_null_when_not_authenticated() {
+        $this->assertNull($this->manager->user());
+    }
+
+    /** @test */
+    public function it_return_null_when_unvalid() {
+        Carbon::setTestNow(Carbon::create(2023, 10, 10, 11, 0, 0));
+
+        OtcToken::factory()->create([
+            'related_type' => User::class,
+            'related_id' => $this->user->id,
+            'code' => 12345,
+            'code_valid_until' => Carbon::create(2022, 10, 10, 10, 15, 0),
+            'token' => '123456789asdfghjkqwertzuiy<xcvbnm',
+            'token_valid_until' => Carbon::create(2022, 11, 20, 10, 00, 0),
+        ]);
+
+        $this->manager->auth('123456789asdfghjkqwertzuiy<xcvbnm');
+
+        $this->assertNull($this->manager->user());
+    }
+
+    /** @test */
     public function unauthorized_response_abort_test() {
         //$this->expectException(NoMatchingAuthenticatableException::class);
         $this->expectException(HttpException::class);
