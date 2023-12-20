@@ -70,7 +70,7 @@ class ControllerTest extends LaravelOtcTestCase
             ]
         );
 
-        $response->assertStatus(302);
+        $response->assertStatus(200);
         Notification::assertSentTo($this->user, OneTimeCodeNotification::class);
     }
 
