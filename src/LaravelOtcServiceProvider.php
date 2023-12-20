@@ -9,6 +9,7 @@ use rohsyl\LaravelOtc\Generators\NumberGenerator;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
 use Spatie\LaravelPackageTools\Commands\InstallCommand;
+use rohsyl\LaravelOtc\Http\Middlewares\OtcMiddleware;
 
 class LaravelOtcServiceProvider extends PackageServiceProvider
 {
@@ -50,5 +51,7 @@ class LaravelOtcServiceProvider extends PackageServiceProvider
         RateLimiter::for('laravel-otc', function($request) {
             return Limit::perMinute(config('otc.rate-limit.per-minute', 6));
         });
+
+        $this->app['router']->aliasMiddleware('otc', OtcMiddleware::class);
     }
 }

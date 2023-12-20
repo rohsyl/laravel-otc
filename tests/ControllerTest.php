@@ -75,6 +75,23 @@ class ControllerTest extends LaravelOtcTestCase
     }
 
     /** @test */
+    public function it_throw_error_when_entity_not_found_and_not_registerable()
+    {
+
+        Notification::fake();
+
+        $response = $this->post(
+            uri: route('laravel-otc.request-code'),
+            data: [
+                'type' => 'user',
+                'identifier' => 'wrong_email@mail.com',
+            ]
+        );
+
+        $response->assertStatus(403);
+    }
+
+    /** @test */
     public function it_auth_and_return_token()
     {
         Carbon::setTestNow(Carbon::create(2022, 10, 10, 10, 0, 0));
